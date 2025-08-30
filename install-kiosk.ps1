@@ -4,38 +4,38 @@ param(
     [string]$RestartTimes
 )
 
-# æ£€æŸ¥æ˜¯å¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ
+# ¼ì²éÊÇ·ñÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ
 function Test-Administrator {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# é‡æ–°ä»¥ç®¡ç†å‘˜èº«ä»½å¯åŠ¨è„šæœ¬
+# ÖØĞÂÒÔ¹ÜÀíÔ±Éí·İÆô¶¯½Å±¾
 function Start-AsAdmin {
     if (-not (Test-Administrator)) {
-        Write-Host "éœ€è¦ç®¡ç†å‘˜æƒé™ï¼Œæ­£åœ¨é‡æ–°å¯åŠ¨..." -ForegroundColor Yellow
+        Write-Host "ĞèÒª¹ÜÀíÔ±È¨ÏŞ£¬ÕıÔÚÖØĞÂÆô¶¯..." -ForegroundColor Yellow
         
-        # åˆ›å»ºä¸´æ—¶è„šæœ¬æ–‡ä»¶
+        # ´´½¨ÁÙÊ±½Å±¾ÎÄ¼ş
         $tempScript = [System.IO.Path]::GetTempFileName() + ".ps1"
         
-        # è·å–å½“å‰è„šæœ¬å†…å®¹
+        # »ñÈ¡µ±Ç°½Å±¾ÄÚÈİ
         $scriptContent = $MyInvocation.MyCommand.ScriptContents
         if (-not $scriptContent) {
-            # å¦‚æœæ— æ³•è·å–è„šæœ¬å†…å®¹ï¼Œå°è¯•ä»æ–‡ä»¶è¯»å–
+            # Èç¹ûÎŞ·¨»ñÈ¡½Å±¾ÄÚÈİ£¬³¢ÊÔ´ÓÎÄ¼ş¶ÁÈ¡
             if ($PSCommandPath -and (Test-Path $PSCommandPath)) {
                 $scriptContent = Get-Content $PSCommandPath -Raw
             } else {
-                Write-Host "æˆ–æ‰‹åŠ¨ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡ŒPowerShellåæ‰§è¡Œæ­¤è„šæœ¬" -ForegroundColor Yellow
-                Read-Host "æŒ‰å›è½¦é”®é€€å‡º"
+                Write-Host "»òÊÖ¶¯ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞPowerShellºóÖ´ĞĞ´Ë½Å±¾" -ForegroundColor Yellow
+                Read-Host "°´»Ø³µ¼üÍË³ö"
                 exit 1
             }
         }
         
-        # å†™å…¥ä¸´æ—¶è„šæœ¬
+        # Ğ´ÈëÁÙÊ±½Å±¾
         $scriptContent | Out-File -FilePath $tempScript -Encoding UTF8
         
-        # æ„å»ºå‚æ•°
+        # ¹¹½¨²ÎÊı
         $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$tempScript`""
         if ($Url) { $arguments += " -Url '$Url'" }
         if ($MemoryThreshold) { $arguments += " -MemoryThreshold $MemoryThreshold" }
@@ -43,30 +43,30 @@ function Start-AsAdmin {
         
         try {
             Start-Process PowerShell -Verb RunAs -ArgumentList $arguments -Wait
-            # æ¸…ç†ä¸´æ—¶æ–‡ä»¶
+            # ÇåÀíÁÙÊ±ÎÄ¼ş
             Remove-Item $tempScript -Force -ErrorAction SilentlyContinue
         } catch {
-            Write-Host "å¯åŠ¨ç®¡ç†å‘˜è¿›ç¨‹å¤±è´¥: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Host "è¯·æ‰‹åŠ¨ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡ŒPowerShell" -ForegroundColor Yellow
-            Read-Host "æŒ‰å›è½¦é”®é€€å‡º"
+            Write-Host "Æô¶¯¹ÜÀíÔ±½ø³ÌÊ§°Ü: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "ÇëÊÖ¶¯ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞPowerShell" -ForegroundColor Yellow
+            Read-Host "°´»Ø³µ¼üÍË³ö"
         }
         exit
     }
 }
 
-# è·å–ç”¨æˆ·è¾“å…¥
+# »ñÈ¡ÓÃ»§ÊäÈë
 function Get-UserInput {
-    # è·å–URL
+    # »ñÈ¡URL
     if (-not $Url) {
         do {
-            $Url = Read-Host "è¯·è¾“å…¥è¦åœ¨Kioskæ¨¡å¼ä¸‹æ˜¾ç¤ºçš„URL"
+            $Url = Read-Host "ÇëÊäÈëÒªÔÚKioskÄ£Ê½ÏÂÏÔÊ¾µÄURL"
         } while ([string]::IsNullOrWhiteSpace($Url))
     }
     
-    # è·å–å†…å­˜é˜ˆå€¼
+    # »ñÈ¡ÄÚ´æãĞÖµ
     if (-not $MemoryThreshold) {
         do {
-            $input = Read-Host "è¯·è¾“å…¥å†…å­˜é™åˆ¶é˜ˆå€¼ (MBï¼Œé»˜è®¤1000)"
+            $input = Read-Host "ÇëÊäÈëÄÚ´æÏŞÖÆãĞÖµ (MB£¬Ä¬ÈÏ1000)"
             if ([string]::IsNullOrWhiteSpace($input)) {
                 $MemoryThreshold = 1000
                 break
@@ -74,22 +74,22 @@ function Get-UserInput {
             if ([int]::TryParse($input, [ref]$MemoryThreshold) -and $MemoryThreshold -gt 0) {
                 break
             }
-            Write-Host "è¯·è¾“å…¥æœ‰æ•ˆçš„æ­£æ•´æ•°" -ForegroundColor Red
+            Write-Host "ÇëÊäÈëÓĞĞ§µÄÕıÕûÊı" -ForegroundColor Red
         } while ($true)
     }
     
-    # è·å–é‡å¯æ—¶é—´
+    # »ñÈ¡ÖØÆôÊ±¼ä
     if (-not $RestartTimes) {
-        Write-Host "è¯·è¾“å…¥è‡ªåŠ¨é‡å¯æ—¶é—´ç‚¹ (24å°æ—¶åˆ¶ï¼Œæ ¼å¼: HH:MMï¼Œå¤šä¸ªæ—¶é—´ç”¨é€—å·åˆ†éš”)"
-        Write-Host "ç¤ºä¾‹: 03:00,12:00,20:00 (ç•™ç©ºè¡¨ç¤ºä¸è®¾ç½®å®šæ—¶é‡å¯)"
+        Write-Host "ÇëÊäÈë×Ô¶¯ÖØÆôÊ±¼äµã (24Ğ¡Ê±ÖÆ£¬¸ñÊ½: HH:MM£¬¶à¸öÊ±¼äÓÃ¶ººÅ·Ö¸ô)"
+        Write-Host "Ê¾Àı: 03:00,12:00,20:00 (Áô¿Õ±íÊ¾²»ÉèÖÃ¶¨Ê±ÖØÆô)"
         do {
-            $input = Read-Host "é‡å¯æ—¶é—´"
+            $input = Read-Host "ÖØÆôÊ±¼ä"
             if ([string]::IsNullOrWhiteSpace($input)) {
                 $RestartTimes = ""
                 break
             }
             
-            # éªŒè¯æ—¶é—´æ ¼å¼
+            # ÑéÖ¤Ê±¼ä¸ñÊ½
             $timePattern = '^(\d{1,2}:\d{2})(,\d{1,2}:\d{2})*$'
             if ($input -match $timePattern) {
                 $validTimes = $true
@@ -107,7 +107,7 @@ function Get-UserInput {
                     break 
                 }
             }
-            Write-Host "æ—¶é—´æ ¼å¼æ— æ•ˆï¼Œè¯·ä½¿ç”¨ HH:MM æ ¼å¼" -ForegroundColor Red
+            Write-Host "Ê±¼ä¸ñÊ½ÎŞĞ§£¬ÇëÊ¹ÓÃ HH:MM ¸ñÊ½" -ForegroundColor Red
         } while ($true)
     }
     
@@ -118,7 +118,7 @@ function Get-UserInput {
     }
 }
 
-# ç”ŸæˆKioskè„šæœ¬
+# Éú³ÉKiosk½Å±¾
 function New-KioskScript {
     param(
         [string]$Url,
@@ -126,7 +126,7 @@ function New-KioskScript {
         [string]$RestartTimes
     )
     
-    # è§£æé‡å¯æ—¶é—´
+    # ½âÎöÖØÆôÊ±¼ä
     $restartTimesString = ""
     if (-not [string]::IsNullOrWhiteSpace($RestartTimes)) {
         $restartTimeArray = @()
@@ -136,324 +136,325 @@ function New-KioskScript {
         }
         $restartTimesString = $restartTimeArray -join ",`n"
     } else {
-        $restartTimesString = "    # æœªè®¾ç½®å®šæ—¶é‡å¯"
+        $restartTimesString = "    # Î´ÉèÖÃ¶¨Ê±ÖØÆô"
     }
     
     $scriptContent = @"
 `$url = "$Url"
 `$edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
-# å†…å­˜é˜ˆå€¼ï¼ˆå•ä½ MBï¼‰
-`$memoryThresholdMB = $MemoryThreshold   # è¶…è¿‡ ${MemoryThreshold}MB å°±é‡å¯
+# ÄÚ´æãĞÖµ£¨µ¥Î» MB£©
+`$memoryThresholdMB = $MemoryThreshold   # ³¬¹ı ${MemoryThreshold}MB ¾ÍÖØÆô
 
-# å®šæ—¶é‡å¯æ—¶é—´åˆ—è¡¨ï¼ˆ24å°æ—¶åˆ¶ï¼‰
+# ¶¨Ê±ÖØÆôÊ±¼äÁĞ±í£¨24Ğ¡Ê±ÖÆ£©
 `$restartTimes = @(
 $restartTimesString
 )
 
-# åˆ›å»ºåœæ­¢æ ‡å¿—æ–‡ä»¶è·¯å¾„
+# ´´½¨Í£Ö¹±êÖ¾ÎÄ¼şÂ·¾¶
 `$stopFlagFile = "C:\KioskMonitor\stop.flag"
 
-# è®¾ç½®æ§åˆ¶å°æ ‡é¢˜ä»¥ä¾¿è¯†åˆ«
+# ÉèÖÃ¿ØÖÆÌ¨±êÌâÒÔ±ãÊ¶±ğ
 `$Host.UI.RawUI.WindowTitle = "Kiosk Monitor - `$url"
 
 function Start-Edge {
-    Write-Output "å¯åŠ¨ Edge Kiosk æ¨¡å¼: `$url"
+    Write-Output "Æô¶¯ Edge Kiosk Ä£Ê½"
     Start-Process `$edge "--kiosk `$url --edge-kiosk-type=fullscreen"
 }
 
-Write-Output "=== Kiosk ç›‘æ§ç¨‹åºå¯åŠ¨ ==="
-Write-Output "ç›®æ ‡URL: `$url"
-Write-Output "å†…å­˜é˜ˆå€¼: `$memoryThresholdMB MB"
-Write-Output "åœæ­¢æ–¹æ³•: æŒ‰ Ctrl+C æˆ–åˆ›å»ºæ–‡ä»¶ `$stopFlagFile"
-Write-Output "ç¨‹åºæ ‡è¯†: Kiosk Monitor - `$url"
+Write-Output "=== Kiosk ÊØ»¤³ÌĞòÆô¶¯ ==="
+Write-Output "ÄÚ´æãĞÖµ: `$memoryThresholdMB MB"
+Write-Output "Í£Ö¹·½·¨: °´ Ctrl+C ÖÕÖ¹"
 Write-Output ""
 
-# ç«‹å³å¯åŠ¨ä¸€æ¬¡ Edge
+# Á¢¼´Æô¶¯Ò»´Î Edge
 Start-Edge
 
 while (`$true) {
-    # æ£€æŸ¥åœæ­¢æ ‡å¿—
+    # ¼ì²éÍ£Ö¹±êÖ¾
     if (Test-Path `$stopFlagFile) {
-        Write-Output "æ£€æµ‹åˆ°åœæ­¢ä¿¡å·ï¼Œæ­£åœ¨å…³é—­..."
+        Write-Output "¼ì²âµ½Í£Ö¹ĞÅºÅ£¬ÕıÔÚ¹Ø±Õ..."
         Get-Process "msedge" -ErrorAction SilentlyContinue | Stop-Process -Force
         Remove-Item `$stopFlagFile -Force -ErrorAction SilentlyContinue
-        Write-Output "Kiosk ç›‘æ§å·²åœæ­¢"
+        Write-Output "Kiosk ÊØ»¤ÒÑÍ£Ö¹"
         exit 0
     }
     
     `$process = Get-Process "msedge" -ErrorAction SilentlyContinue
 
     if (`$process) {
-        # è®¡ç®—æ‰€æœ‰ Edge è¿›ç¨‹çš„æ€»å†…å­˜å ç”¨ï¼ˆMBï¼‰
+        # ¼ÆËãËùÓĞ Edge ½ø³ÌµÄ×ÜÄÚ´æÕ¼ÓÃ£¨MB£©
         `$totalMemUsageMB = [math]::Round(((`$process | Measure-Object WorkingSet64 -Sum).Sum) / 1MB, 2)
 
-        # è¶…è¿‡é˜ˆå€¼åˆ™é‡å¯
+        # ³¬¹ıãĞÖµÔòÖØÆô
         if (`$totalMemUsageMB -gt `$memoryThresholdMB) {
-            Write-Output "Edge å ç”¨ `$totalMemUsageMB MBï¼Œè¶…è¿‡é˜ˆå€¼ `$memoryThresholdMB MBï¼Œæ­£åœ¨é‡å¯..."
+            Write-Output "Edge Õ¼ÓÃ `$totalMemUsageMB MB£¬³¬¹ıãĞÖµ `$memoryThresholdMB MB£¬ÕıÔÚÖØÆô..."
             Stop-Process -Name "msedge" -Force
             Start-Edge
         }
 
-        # æ£€æŸ¥æ˜¯å¦åˆ°è¾¾æŒ‡å®šæ—¶é—´ç‚¹
+        # ¼ì²éÊÇ·ñµ½´ïÖ¸¶¨Ê±¼äµã
         if (`$restartTimes.Count -gt 0) {
             `$now = Get-Date
             foreach (`$t in `$restartTimes) {
                 if (`$now.Hour -eq `$t.Hour -and `$now.Minute -eq `$t.Minute) {
-                    Write-Output "åˆ°è¾¾å®šæ—¶é‡å¯æ—¶é—´ `$(`$t.Hour):`$(`$t.Minute)ï¼Œæ­£åœ¨é‡å¯..."
+                    Write-Output "µ½´ï¶¨Ê±ÖØÆôÊ±¼ä `$(`$t.Hour):`$(`$t.Minute)£¬ÕıÔÚÖØÆô..."
                     Stop-Process -Name "msedge" -Force
                     Start-Edge
-                    Start-Sleep -Seconds 60  # é¿å…ä¸€åˆ†é’Ÿå†…å¤šæ¬¡è§¦å‘
+                    Start-Sleep -Seconds 60  # ±ÜÃâÒ»·ÖÖÓÄÚ¶à´Î´¥·¢
                 }
             }
         }
     }
     else {
-        # Edge æ²¡å¼€åˆ™å¯åŠ¨
+        # Edge Ã»¿ªÔòÆô¶¯
         Start-Edge
     }
 
-    Start-Sleep -Seconds 30   # æ¯ 30 ç§’æ£€æŸ¥ä¸€æ¬¡
+    Start-Sleep -Seconds 30   # Ã¿ 30 Ãë¼ì²éÒ»´Î
 }
 
-# ç¨‹åºç»“æŸæ—¶çš„æ¸…ç†
-Write-Output "Kiosk ç›‘æ§ç¨‹åºå·²é€€å‡º"
+# ³ÌĞò½áÊøÊ±µÄÇåÀí
+Write-Output "Kiosk ÊØ»¤³ÌĞòÒÑÍË³ö"
 "@
     
     return $scriptContent
 }
 
-# å¸è½½ç°æœ‰KioskæœåŠ¡
+# Ğ¶ÔØÏÖÓĞKiosk·şÎñ
 function Uninstall-ExistingKiosk {
-    Write-Host "æ­£åœ¨æ£€æŸ¥å¹¶å¸è½½ç°æœ‰KioskæœåŠ¡..." -ForegroundColor Yellow
+    Write-Host "ÕıÔÚ¼ì²é²¢Ğ¶ÔØÏÖÓĞKiosk·şÎñ..." -ForegroundColor Yellow
     
-    # åœæ­¢ç°æœ‰è¿›ç¨‹
+    # Í£Ö¹ÏÖÓĞ½ø³Ì
     $kioskProcesses = Get-Process | Where-Object { $_.MainWindowTitle -like "Kiosk Monitor*" }
     if ($kioskProcesses) {
-        Write-Host "å‘ç°è¿è¡Œä¸­çš„Kioskç›‘æ§è¿›ç¨‹ï¼Œæ­£åœ¨åœæ­¢..." -ForegroundColor Yellow
+        Write-Host "·¢ÏÖÔËĞĞÖĞµÄKioskÊØ»¤½ø³Ì£¬ÕıÔÚÍ£Ö¹..." -ForegroundColor Yellow
         $kioskProcesses | Stop-Process -Force
-        Write-Host "å·²åœæ­¢ç°æœ‰Kioskç›‘æ§è¿›ç¨‹" -ForegroundColor Green
+        Write-Host "ÒÑÍ£Ö¹ÏÖÓĞKioskÊØ»¤½ø³Ì" -ForegroundColor Green
     }
     
-    # åœæ­¢Edgeè¿›ç¨‹
+    # Í£Ö¹Edge½ø³Ì
     $edgeProcesses = Get-Process "msedge" -ErrorAction SilentlyContinue
     if ($edgeProcesses) {
-        Write-Host "æ­£åœ¨åœæ­¢Edgeè¿›ç¨‹..." -ForegroundColor Yellow
+        Write-Host "ÕıÔÚÍ£Ö¹Edge½ø³Ì..." -ForegroundColor Yellow
         $edgeProcesses | Stop-Process -Force
-        Write-Host "å·²åœæ­¢Edgeè¿›ç¨‹" -ForegroundColor Green
+        Write-Host "ÒÑÍ£Ö¹Edge½ø³Ì" -ForegroundColor Green
     }
     
-    # åˆ é™¤ä»»åŠ¡è®¡åˆ’
+    # É¾³ıÈÎÎñ¼Æ»®
     $taskName = "KioskMonitor"
     $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
     if ($existingTask) {
         Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-        Write-Host "å·²åˆ é™¤ä»»åŠ¡è®¡åˆ’: $taskName" -ForegroundColor Green
+        Write-Host "ÒÑÉ¾³ıÈÎÎñ¼Æ»®: $taskName" -ForegroundColor Green
     }
     
-    # åˆ é™¤å¯åŠ¨é¡¹æ³¨å†Œè¡¨é¡¹
+    # É¾³ıÆô¶¯Ïî×¢²á±íÏî
     $startupRegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
     $startupKeyName = "KioskMonitor"
     if (Get-ItemProperty -Path $startupRegPath -Name $startupKeyName -ErrorAction SilentlyContinue) {
         Remove-ItemProperty -Path $startupRegPath -Name $startupKeyName -Force
-        Write-Host "å·²åˆ é™¤å¯åŠ¨é¡¹æ³¨å†Œè¡¨: $startupKeyName" -ForegroundColor Green
+        Write-Host "ÒÑÉ¾³ıÆô¶¯Ïî×¢²á±í: $startupKeyName" -ForegroundColor Green
     }
     
-    # åˆ é™¤ç”¨æˆ·å¯åŠ¨æ–‡ä»¶å¤¹ä¸­çš„å¿«æ·æ–¹å¼
+    # É¾³ıÓÃ»§Æô¶¯ÎÄ¼ş¼ĞÖĞµÄ¿ì½İ·½Ê½
     $startupFolder = [Environment]::GetFolderPath("Startup")
     $shortcutPath = Join-Path $startupFolder "KioskMonitor.lnk"
     if (Test-Path $shortcutPath) {
         Remove-Item $shortcutPath -Force
-        Write-Host "å·²åˆ é™¤å¯åŠ¨æ–‡ä»¶å¤¹å¿«æ·æ–¹å¼" -ForegroundColor Green
+        Write-Host "ÒÑÉ¾³ıÆô¶¯ÎÄ¼ş¼Ğ¿ì½İ·½Ê½" -ForegroundColor Green
     }
     
-    # åˆ é™¤ç°æœ‰æ–‡ä»¶
+    # É¾³ıÏÖÓĞÎÄ¼ş
     $scriptDir = "C:\KioskMonitor"
     if (Test-Path $scriptDir) {
         Remove-Item $scriptDir -Recurse -Force
-        Write-Host "å·²åˆ é™¤ç°æœ‰Kioskæ–‡ä»¶ç›®å½•" -ForegroundColor Green
+        Write-Host "ÒÑÉ¾³ıÏÖÓĞKioskÎÄ¼şÄ¿Â¼" -ForegroundColor Green
     }
     
-    Write-Host "ç°æœ‰KioskæœåŠ¡å¸è½½å®Œæˆ" -ForegroundColor Green
+    Write-Host "ÏÖÓĞKiosk·şÎñĞ¶ÔØÍê³É" -ForegroundColor Green
 }
 
-# å®‰è£…Kioskè„šæœ¬
+# °²×°Kiosk½Å±¾
 function Install-KioskScript {
     param(
         [string]$ScriptContent
     )
     
-    # å…ˆå¸è½½ç°æœ‰æœåŠ¡
+    # ÏÈĞ¶ÔØÏÖÓĞ·şÎñ
     Uninstall-ExistingKiosk
     
     $scriptPath = "C:\KioskMonitor\kiosk-monitor.ps1"
     $scriptDir = Split-Path $scriptPath -Parent
     
-    # åˆ›å»ºç›®å½•
+    # ´´½¨Ä¿Â¼
     New-Item -ItemType Directory -Path $scriptDir -Force | Out-Null
-    Write-Host "å·²åˆ›å»ºç›®å½•: $scriptDir" -ForegroundColor Green
+    Write-Host "ÒÑ´´½¨Ä¿Â¼: $scriptDir" -ForegroundColor Green
     
-    # å†™å…¥è„šæœ¬æ–‡ä»¶
+    # Ğ´Èë½Å±¾ÎÄ¼ş
     $ScriptContent | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
-    Write-Host "å·²åˆ›å»ºKioskç›‘æ§è„šæœ¬: $scriptPath" -ForegroundColor Green
+    Write-Host "ÒÑ´´½¨KioskÊØ»¤½Å±¾: $scriptPath" -ForegroundColor Green
     
-    # åˆ›å»ºå¯åŠ¨è„šæœ¬
+    # ´´½¨Æô¶¯½Å±¾
     $startupScript = @"
-# Kiosk å¯åŠ¨è„šæœ¬
+# Kiosk Æô¶¯½Å±¾
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-PowerShell -NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File "$scriptPath"
+PowerShell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "$scriptPath"
 "@
     
     $startupPath = "$scriptDir\start-kiosk.ps1"
     $startupScript | Out-File -FilePath $startupPath -Encoding UTF8 -Force
-    Write-Host "å·²åˆ›å»ºå¯åŠ¨è„šæœ¬: $startupPath" -ForegroundColor Green
+    Write-Host "ÒÑ´´½¨Æô¶¯½Å±¾: $startupPath" -ForegroundColor Green
     
-    # è®¾ç½®å¼€æœºè‡ªå¯åŠ¨
+    # ÉèÖÃ¿ª»ú×ÔÆô¶¯
     Write-Host ""
-    Write-Host "è¯·é€‰æ‹©å¼€æœºè‡ªå¯åŠ¨æ–¹å¼:" -ForegroundColor Cyan
-    Write-Host "1. ä»»åŠ¡è®¡åˆ’ç¨‹åº (æ¨èï¼Œç³»ç»Ÿçº§åˆ«)" -ForegroundColor White
-    Write-Host "2. ç”¨æˆ·å¯åŠ¨é¡¹ (å½“å‰ç”¨æˆ·)" -ForegroundColor White
-    Write-Host "3. ä¸è®¾ç½®è‡ªå¯åŠ¨" -ForegroundColor White
+    Write-Host "ÇëÑ¡Ôñ¿ª»ú×ÔÆô¶¯·½Ê½:" -ForegroundColor Cyan
+    Write-Host "1. ÈÎÎñ¼Æ»®³ÌĞò (ÍÆ¼ö£¬ÏµÍ³¼¶±ğ)" -ForegroundColor White
+    Write-Host "2. ÓÃ»§Æô¶¯Ïî (µ±Ç°ÓÃ»§)" -ForegroundColor White
+    Write-Host "3. ²»ÉèÖÃ×ÔÆô¶¯" -ForegroundColor White
     
     do {
-        $choice = Read-Host "è¯·é€‰æ‹© (1/2/3)"
+        $choice = Read-Host "ÇëÑ¡Ôñ (1/2/3)"
     } while ($choice -notin @('1', '2', '3'))
     
     switch ($choice) {
         '1' {
             try {
-                # åˆ›å»ºWindowsä»»åŠ¡è®¡åˆ’
+                # ´´½¨WindowsÈÎÎñ¼Æ»®
                 $taskName = "KioskMonitor"
-                $taskDescription = "Kioskæ¨¡å¼ç›‘æ§ç¨‹åº - å¼€æœºè‡ªå¯åŠ¨"
+                $taskDescription = "KioskÄ£Ê½ÊØ»¤³ÌĞò"
                 
-                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File `"$scriptPath`""
-                $trigger = New-ScheduledTaskTrigger -AtStartup
-                $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-                $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -DontStopOnIdleEnd
+                # »ñÈ¡µ±Ç°ÓÃ»§ĞÅÏ¢
+                $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+                
+                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
+                $trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
+                $principal = New-ScheduledTaskPrincipal -UserId $currentUser -LogonType Interactive -RunLevel Highest
+                $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -DontStopOnIdleEnd -ExecutionTimeLimit (New-TimeSpan -Hours 0)
                 
                 Register-ScheduledTask -TaskName $taskName -Description $taskDescription -Action $action -Trigger $trigger -Principal $principal -Settings $settings | Out-Null
                 
-                Write-Host "å·²è®¾ç½®ä»»åŠ¡è®¡åˆ’è‡ªå¯åŠ¨" -ForegroundColor Green
-                Write-Host "  ä»»åŠ¡åç§°: $taskName" -ForegroundColor Cyan
-                Write-Host "  ç®¡ç†æ–¹å¼: ä»»åŠ¡è®¡åˆ’ç¨‹åº" -ForegroundColor Cyan
-                $autoStartMethod = "ä»»åŠ¡è®¡åˆ’ç¨‹åº"
+                Write-Host "ÒÑÉèÖÃÈÎÎñ¼Æ»®×ÔÆô¶¯" -ForegroundColor Green
+                Write-Host "  ÈÎÎñÃû³Æ: $taskName" -ForegroundColor Cyan
+                Write-Host "  ¹ÜÀí·½Ê½: ÈÎÎñ¼Æ»®³ÌĞò" -ForegroundColor Cyan
+                $autoStartMethod = "ÈÎÎñ¼Æ»®³ÌĞò"
                 
             } catch {
-                Write-Host "è®¾ç½®ä»»åŠ¡è®¡åˆ’å¤±è´¥: $($_.Exception.Message)" -ForegroundColor Red
-                $autoStartMethod = "è®¾ç½®å¤±è´¥"
+                Write-Host "ÉèÖÃÈÎÎñ¼Æ»®Ê§°Ü: $($_.Exception.Message)" -ForegroundColor Red
+                $autoStartMethod = "ÉèÖÃÊ§°Ü"
             }
         }
         '2' {
             try {
-                # æ·»åŠ åˆ°ç”¨æˆ·å¯åŠ¨é¡¹æ³¨å†Œè¡¨
+                # Ìí¼Óµ½ÓÃ»§Æô¶¯Ïî×¢²á±í
                 $startupRegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
                 $startupKeyName = "KioskMonitor"
-                $startupCommand = "PowerShell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File `"$scriptPath`""
+                $startupCommand = "PowerShell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
                 
                 Set-ItemProperty -Path $startupRegPath -Name $startupKeyName -Value $startupCommand -Force
                 
-                Write-Host "å·²è®¾ç½®ç”¨æˆ·å¯åŠ¨é¡¹" -ForegroundColor Green
-                Write-Host "  æ³¨å†Œè¡¨ä½ç½®: $startupRegPath" -ForegroundColor Cyan
-                Write-Host "  é”®å: $startupKeyName" -ForegroundColor Cyan
-                $autoStartMethod = "ç”¨æˆ·å¯åŠ¨é¡¹"
+                Write-Host "ÒÑÉèÖÃÓÃ»§Æô¶¯Ïî" -ForegroundColor Green
+                Write-Host "  ×¢²á±íÎ»ÖÃ: $startupRegPath" -ForegroundColor Cyan
+                Write-Host "  ¼üÃû: $startupKeyName" -ForegroundColor Cyan
+                $autoStartMethod = "ÓÃ»§Æô¶¯Ïî"
                 
             } catch {
-                Write-Host "è®¾ç½®ç”¨æˆ·å¯åŠ¨é¡¹å¤±è´¥: $($_.Exception.Message)" -ForegroundColor Red
-                $autoStartMethod = "è®¾ç½®å¤±è´¥"
+                Write-Host "ÉèÖÃÓÃ»§Æô¶¯ÏîÊ§°Ü: $($_.Exception.Message)" -ForegroundColor Red
+                $autoStartMethod = "ÉèÖÃÊ§°Ü"
             }
         }
         '3' {
-            Write-Host "è·³è¿‡è‡ªå¯åŠ¨è®¾ç½®" -ForegroundColor Yellow
-            $autoStartMethod = "æœªè®¾ç½®"
+            Write-Host "Ìø¹ı×ÔÆô¶¯ÉèÖÃ" -ForegroundColor Yellow
+            $autoStartMethod = "Î´ÉèÖÃ"
         }
     }
     
-    # è¯¢é—®æ˜¯å¦ç«‹å³å¯åŠ¨
-    $start = Read-Host "æ˜¯å¦ç«‹å³å¯åŠ¨Kioskç›‘æ§? (y/N)"
+    # Ñ¯ÎÊÊÇ·ñÁ¢¼´Æô¶¯
+    $start = Read-Host "ÊÇ·ñÁ¢¼´Æô¶¯KioskÊØ»¤? (y/N)"
     if ($start -eq 'y' -or $start -eq 'Y') {
-        Write-Host "æ­£åœ¨å¯åŠ¨Kioskç›‘æ§..." -ForegroundColor Yellow
-        Start-Process PowerShell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-        Write-Host "Kioskç›‘æ§å·²å¯åŠ¨! (çª—å£æ ‡é¢˜: Kiosk Monitor - URL)" -ForegroundColor Green
+        Write-Host "ÕıÔÚÆô¶¯KioskÊØ»¤..." -ForegroundColor Yellow
+        Start-Process PowerShell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
+        Write-Host "KioskÊØ»¤ÒÑÆô¶¯!" -ForegroundColor Green
     }
     
-    Write-Host "`nå®‰è£…å®Œæˆ" -ForegroundColor Green
+    Write-Host "`n°²×°Íê³É" -ForegroundColor Green
     Write-Host ""
-    Write-Host "æ–‡ä»¶ä½ç½®:" -ForegroundColor Cyan
-    Write-Host "  ç›‘æ§è„šæœ¬: $scriptPath" -ForegroundColor White
-    Write-Host "  å¯åŠ¨è„šæœ¬: $startupPath" -ForegroundColor White
+    Write-Host "ÎÄ¼şÎ»ÖÃ:" -ForegroundColor Cyan
+    Write-Host "  ÊØ»¤½Å±¾: $scriptPath" -ForegroundColor White
+    Write-Host "  Æô¶¯½Å±¾: $startupPath" -ForegroundColor White
     Write-Host ""
-    Write-Host "ä½¿ç”¨æ–¹æ³•:" -ForegroundColor Cyan
-    Write-Host "  å¯åŠ¨ç›‘æ§: PowerShell -ExecutionPolicy Bypass -File `"$startupPath`"" -ForegroundColor White
-    Write-Host "  åœæ­¢ç›‘æ§: åœ¨ç›‘æ§çª—å£æŒ‰ Ctrl+C æˆ–åˆ›å»ºæ–‡ä»¶ C:\KioskMonitor\stop.flag" -ForegroundColor White
-    Write-Host "  é‡æ–°å®‰è£…: å†æ¬¡è¿è¡Œæ­¤å®‰è£…è„šæœ¬" -ForegroundColor White
+    Write-Host "Ê¹ÓÃ·½·¨:" -ForegroundColor Cyan
+    Write-Host "  Æô¶¯ÊØ»¤: PowerShell -ExecutionPolicy Bypass -File `"$startupPath`"" -ForegroundColor White
+    Write-Host "  Í£Ö¹ÊØ»¤: ÔÚÊØ»¤´°¿Ú°´ Ctrl+C »ò´´½¨ÎÄ¼ş C:\KioskMonitor\stop.flag" -ForegroundColor White
+    Write-Host "  ÖØĞÂ°²×°: ÔÙ´ÎÔËĞĞ´Ë°²×°½Å±¾" -ForegroundColor White
     Write-Host ""
-    Write-Host "å¼€æœºè‡ªå¯åŠ¨: $autoStartMethod" -ForegroundColor $(if ($autoStartMethod -eq "æœªè®¾ç½®") { "Yellow" } elseif ($autoStartMethod -eq "è®¾ç½®å¤±è´¥") { "Red" } else { "Green" })
+    Write-Host "¿ª»ú×ÔÆô¶¯: $autoStartMethod" -ForegroundColor $(if ($autoStartMethod -eq "Î´ÉèÖÃ") { "Yellow" } elseif ($autoStartMethod -eq "ÉèÖÃÊ§°Ü") { "Red" } else { "Green" })
     Write-Host ""
-    Write-Host "æ³¨æ„äº‹é¡¹:" -ForegroundColor Gray
-    Write-Host "  ç›‘æ§ç¨‹åºè¿è¡Œæ—¶çª—å£æ ‡é¢˜æ˜¾ç¤º 'Kiosk Monitor - URL'" -ForegroundColor Gray
-    Write-Host "  é‡æ–°è¿è¡Œå®‰è£…è„šæœ¬ä¼šè‡ªåŠ¨å¸è½½ç°æœ‰æœåŠ¡" -ForegroundColor Gray
+    Write-Host "×¢ÒâÊÂÏî:" -ForegroundColor Gray
+    Write-Host "  ÊØ»¤³ÌĞòÔËĞĞÊ±´°¿Ú±êÌâÏÔÊ¾ 'Kiosk Monitor - URL'" -ForegroundColor Gray
+    Write-Host "  ÖØĞÂÔËĞĞ°²×°½Å±¾»á×Ô¶¯Ğ¶ÔØÏÖÓĞ·şÎñ" -ForegroundColor Gray
 }
 
-# ä¸»ç¨‹åº
+# Ö÷³ÌĞò
 try {
-    Write-Host "=== Kiosk ç®¡ç†ç¨‹åº ===" -ForegroundColor Cyan
+    Write-Host "=== Kiosk ¹ÜÀí³ÌĞò ===" -ForegroundColor Cyan
     Write-Host ""
     
-    # æ£€æŸ¥ç®¡ç†å‘˜æƒé™å¹¶è‡ªåŠ¨æå‡
+    # ¼ì²é¹ÜÀíÔ±È¨ÏŞ²¢×Ô¶¯ÌáÉı
     Start-AsAdmin
     
-    # é€‰æ‹©æ“ä½œæ¨¡å¼
-    Write-Host "è¯·é€‰æ‹©æ“ä½œ:" -ForegroundColor Yellow
-    Write-Host "  [I] å®‰è£… Kiosk ç›‘æ§æœåŠ¡" -ForegroundColor White
-    Write-Host "  [R] ç§»é™¤ Kiosk ç›‘æ§æœåŠ¡" -ForegroundColor White
+    # Ñ¡Ôñ²Ù×÷Ä£Ê½
+    Write-Host "ÇëÑ¡Ôñ²Ù×÷:" -ForegroundColor Yellow
+    Write-Host "  [I] °²×° Kiosk ÊØ»¤·şÎñ" -ForegroundColor White
+    Write-Host "  [R] ÒÆ³ı Kiosk ÊØ»¤·şÎñ" -ForegroundColor White
     Write-Host ""
     
     do {
-        $operation = Read-Host "è¯·è¾“å…¥é€‰æ‹© (I/R)"
+        $operation = Read-Host "ÇëÊäÈëÑ¡Ôñ (I/R)"
         $operation = $operation.ToUpper()
     } while ($operation -notin @('I', 'R'))
     
     if ($operation -eq 'R') {
-        # æ‰§è¡Œå¸è½½æ“ä½œ
+        # Ö´ĞĞĞ¶ÔØ²Ù×÷
         Write-Host ""
-        Write-Host "=== å¼€å§‹å¸è½½ Kiosk ç›‘æ§æœåŠ¡ ===" -ForegroundColor Red
+        Write-Host "=== ¿ªÊ¼Ğ¶ÔØ Kiosk ÊØ»¤·şÎñ ===" -ForegroundColor Red
         Uninstall-ExistingKiosk
         Write-Host ""
-        Write-Host "å¸è½½å®Œæˆ" -ForegroundColor Green
-        Write-Host "æ‰€æœ‰ Kiosk ç›‘æ§æœåŠ¡å·²ä»ç³»ç»Ÿä¸­ç§»é™¤" -ForegroundColor Cyan
+        Write-Host "Ğ¶ÔØÍê³É" -ForegroundColor Green
+        Write-Host "ËùÓĞ Kiosk ÊØ»¤·şÎñÒÑ´ÓÏµÍ³ÖĞÒÆ³ı" -ForegroundColor Cyan
         return
     }
     
-    # æ‰§è¡Œå®‰è£…æ“ä½œ
+    # Ö´ĞĞ°²×°²Ù×÷
     Write-Host ""
-    Write-Host "=== å¼€å§‹å®‰è£… Kiosk ç›‘æ§æœåŠ¡ ===" -ForegroundColor Green
+    Write-Host "=== ¿ªÊ¼°²×° Kiosk ÊØ»¤·şÎñ ===" -ForegroundColor Green
     
-    # è·å–ç”¨æˆ·è¾“å…¥
+    # »ñÈ¡ÓÃ»§ÊäÈë
     $config = Get-UserInput
     
     Write-Host ""
-    Write-Host "é…ç½®ä¿¡æ¯:" -ForegroundColor Yellow
+    Write-Host "ÅäÖÃĞÅÏ¢:" -ForegroundColor Yellow
     Write-Host "URL: $($config.Url)" -ForegroundColor White
-    Write-Host "å†…å­˜é˜ˆå€¼: $($config.MemoryThreshold) MB" -ForegroundColor White
-    Write-Host "é‡å¯æ—¶é—´: $($config.RestartTimes)" -ForegroundColor White
+    Write-Host "ÄÚ´æãĞÖµ: $($config.MemoryThreshold) MB" -ForegroundColor White
+    Write-Host "ÖØÆôÊ±¼ä: $($config.RestartTimes)" -ForegroundColor White
     Write-Host ""
     
-    $confirm = Read-Host "ç¡®è®¤å®‰è£…? (Y/n)"
+    $confirm = Read-Host "È·ÈÏ°²×°? (Y/n)"
     if ($confirm -eq 'n' -or $confirm -eq 'N') {
-        Write-Host "å®‰è£…å·²å–æ¶ˆ" -ForegroundColor Yellow
+        Write-Host "°²×°ÒÑÈ¡Ïû" -ForegroundColor Yellow
         exit
     }
     
-    # ç”Ÿæˆå¹¶å®‰è£…è„šæœ¬
+    # Éú³É²¢°²×°½Å±¾
     $scriptContent = New-KioskScript -Url $config.Url -MemoryThreshold $config.MemoryThreshold -RestartTimes $config.RestartTimes
     Install-KioskScript -ScriptContent $scriptContent
     
 } catch {
-    Write-Host "å®‰è£…è¿‡ç¨‹ä¸­å‘ç”Ÿé”™è¯¯: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "è¯·æ£€æŸ¥æƒé™å’Œç½‘ç»œè¿æ¥" -ForegroundColor Yellow
+    Write-Host "°²×°¹ı³ÌÖĞ·¢Éú´íÎó: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Çë¼ì²éÈ¨ÏŞºÍÍøÂçÁ¬½Ó" -ForegroundColor Yellow
     exit 1
 }
 
 Write-Host ""
-Write-Host "æŒ‰ä»»æ„é”®é€€å‡º..." -ForegroundColor Gray
+Write-Host "°´ÈÎÒâ¼üÍË³ö..." -ForegroundColor Gray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
